@@ -1,0 +1,47 @@
+install.packages("wordcloud")
+install.packages("tm") 
+install.packages("SnowballC") 
+install.packages("RColorBrewer")
+
+library("tm")
+librery("Snowball")
+librery(wordcloud)
+librery(RColorBrewer)
+
+documento = fileChoose()
+dataframe <- read.table("C:/globalll.txt", sep='\t', skipNul = TRUE, blank.lines.skip = TRUE)
+
+d <- data.frame(word = dataframe$V1, freq=dataframe$V2)
+
+wordcloud::wordcloud(words = d$word, freq = d$freq, min.freq = 1,scale=c(5,.2),
+          max.words=1000, random.order=FALSE, rot.per=0.50) 
+          colors=brewer.pal(8, "Dark2"))
+
+
+
+
+
+
+  
+set.seed(656)
+fileChoose()
+
+
+install.packages("wordcloud")
+install.packages("tm") 
+install.packages("SnowballC") 
+install.packages("RColorBrewer")
+
+library("tm")
+library("SnowballC")
+library(wordcloud)
+library(RColorBrewer)
+
+documento = fileChoose()
+dataframe <- read.table("C:\wordcount.txt", sep='\t', skipNul = TRUE, blank.lines.skip = TRUE)
+
+d <- data.frame(word = dataframe$V1, freq=dataframe$V2)
+
+wordcloud::wordcloud(words = d$word, freq = d$freq, min.freq = 1,scale=c(5,.2),
+          max.words=1000, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))

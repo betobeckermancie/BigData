@@ -1,0 +1,138 @@
+agregar valor           x<-valor			valor->x
+class(x) 		para saber el tipo de dato
+as.integer(X)		para convertirlo a entero
+vector			v<-c(1,2,3,4)
+sqrt(x)			raiz cuadrada
+
+___________
+if,while,for
+
+if
+if (x > 5){
++ y="hola";
++ print(y);}
+
+
+for(i in 1:5) print(1:i)
+
+for(i in v2) if (v2[i]==3) print("valor 3") else print(v2[i])
+
+_________________________________________
+write(vector,ruta del archivo, sep=":")
+__________________________________________
+
+instalar librerias
+install.packages("rjson")
+
+library("rjson")
+
+json_file<-"https://api.worldbank.org/country?per_page=10&region=OED&lendingtype=LNX&format=json"					//link particle photon
+json_data<-fromJSON(file=json_file)													//para leer formato json
+
+print(json_data)
+class(json_data)
+
+json_data[[2]][[10]]$latitude
+class(json_data[[2]][[10]]$latitude)
+
+x<-as.integer(json_data[[2]][[10]]$latitude)+8
+print(x)
+
+______________________________________________________________________________
+//dependera del R que generara un ejecutable, tenemos que calendarisarlo (5 min)
+//json fisico para agregarlo al fromJSON
+
+
+datos JSON -ARCHIVOS FISICOS O URL
+leer archivos cada 5 minutos 
+datos en variable tipo lista (json_data<-fromJSON(file=json_file)
+identificar las variables: TEMPERATURA HUMEDAD
+agregar a vectores lo que llegue a las variables (VT VH)
+_____________________________________________________________
+****************************ejercicio longitud y latitud*****************************
+LONG=c(json_data[[2]][[10]]$longitude)
+LATI=c(json_data[[2]][[10]]$latitude)
+for (i in 1:22) { 
+LONG[i]<-as.numeric(json_data[[2]][[10]]$longitude)
+LATI[i]<-as.numeric(json_data[[2]][[10]]$latitude)
+print(LONG)
+print(LATI)
+ }
+****************************************************************************************
+
+__________________________________________________________________
+laboratorio
+con R entrar a MongoDB y extraer informacion
+- 
+___________________________________________
+vec <- as.numeric(scan("valores.txt"))
+print(vec)
+_____________________________________________
+
+
+******************************tarea laboratorio*******************
+suma=c()
+vec=c(scan("C:\\temperaturas.txt"))
+for (i in 1:length(vec)) { 
+vec<-as.numeric(scan("C:\\temperaturas.txt"))
+print(vec)
+if (vec[i] >= 1 & vec[i] <= 10){ 
+suma<-c(suma, vec[i])
+}
+}
+suma
+sum(suma)
+********************************************************
+
+numeros=c()
+vec=c(scan("valores.txt"))
+for (i in 1:length(vec)) { 
+vec<-as.numeric(scan("valores.txt"))
+print(vec)
+if (vec[i] >= 1 & vec[i] <= 10){ 
+numeros<-c(numeros, vec[i])
+}
+}
+numeros
+suma=sum(numeros)
+suma
+
+******ejemplo if*****
+for (i in 1:7) { 
+if (i >= 1 & i <= 5)  
+print(i) 
+}
+***********************
+
+*********************ejemplo grafica**************
+radio <- 0:10 # Vector de radios 
+area <- pi*radio^2 # Vector de áreas 
+tit <- "Áreas de círculos" # Título del gráfico 
+plot(radio, area, # x=radio y=area 
+type="b", # "both", puntos y líneas 
+main=tit, 
+xlab="Radio (r)", 
+ylab=expression(Area == pi*r^2), # Una expresión 
+col="orange", # color (naranja) 
+pch=20) # tipo de símbolo para punto
+***********************************************************
+v_fecha<-c(as.numeric,0)
+v_datos<-c(as.numeric,0)
+i<-0
+while(TRUE){
+if(file.exists("c:\\Software\\R\\JSON_file.csv"))
+{
+json_data<-c(scan("c:\\Software\\R\\JSON_file.csv", sep=";"))
+v_datos[i]<-json_data[3]
+v_fecha[i]<-format(Sys.time(),"%m%d%y %H%M%S")
+i=i+1
+}
+else
+{
+print("FIN")
+tabla_datos<-data.frame(v_fecha, v_datos)
+barplot(tabla_datos$v_datos)
+break
+}
+Sys.sleep(5)
+}

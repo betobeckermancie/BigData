@@ -1,0 +1,219 @@
+
+Crear usuario hdc/hdc2019
+	#useradd hdc
+	#passwd hdc
+		hdc2019
+
+Cambiar permisos a /u01 a hdc:hdc
+	#chown -R hdc:hdc /u01
+
+Con el usuario hdc Extraer hadoop en /u01 
+https://archive.apache.org/dist/hadoop/common/hadoop-2.6.5/
+	cd /u01
+	tar -vxf hadoop-2.6.5.tar.gz
+Con usuario root crear link ln -s /u01/hadoop-2.6.5 /usr/local/hadoop
+        #ln -s /u01/hadoop-2.6.5 /usr/local/hadoop
+
+Con usuario root cambiar propietario al link 
+        #chown -R hdc:hdc /usr/local/hadoop
+
+Agregar path de hadoop al .bashrc
+Agregar path de java al .bashrc
+Probar hadoop version
+
+cambiar nombre a la maquina con     hostnamectl set-hostname m1
+
+Modificar el /etc/hosts con la IP, usar ifconfig
+
+Configurar ssh
+ssh-keygen -t rsa -P ""
+ssh-copy-id -i $HOME/.ssh/id_rsa.pub hdc@m2
+
+Probar ssh
+desde m1: ssh m2 y viseversa
+
+Agregar usuario hdc a sudoers
+
+visudo, agregar después de usuario root
+hdc	ALL=(ALL)	ALL
+
+Hadoop Config Arquitecture
+M1: 
+	Name Node 
+	Data Node
+	Resource Manager
+	Node Manager
+
+M2:
+	Data Node
+	Node Manager
+	Secondary Name Node
+
+Setup Hadoop Config Files, 1.43.57
+/usr/local/hadoop/etc/hadoop
+
+core-site.xml, 
+mapred-site.xml, processing framework
+hdfs-site.xml, replication factor, metadata and datablock nodes config
+yarn-site.xml, resourcemanager and tracker
+slaves
+
+<<<<<<<<<<<<<<<<<<<<<<< core-site.xml >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+<configuration>
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://m1:9000</value>
+</property>
+</configuration>
+
+<<<<<<<<<<<<<<<<<<<<<<< mapred-site.xml >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Usar el template y renombrarlo para su uso
+
+<configuration>
+<property>
+<name>mapreduce.framework.name</name>
+<value>yarn</value>
+</property>
+</configuration>
+
+<<<<<<<<<<<<<<<<<<<<<<< hdfs-site.xml >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+<configuration>
+<property>
+<name>dfs.replication</name>
+<value>2</value>
+</property>
+
+<property>
+<name>dfs.namenode.name.dir</name>
+<value>/u02/name</value>
+<final>true</final>
+</property>
+
+<property>
+<name>dfs.datanode.data.dir</name>
+<value>/u02/data</value>
+<final>true</final>
+</property>
+
+<property>
+<name>dfs.namenode.http-address</name>
+<value>m1:50070</value>
+</property>
+
+<property>
+<name>dfs.namenode.secondary.http-address</name>
+<value>m2:50090</value>
+</property>
+
+</configuration>
+
+<<<<<<<<<<<<<<<<<<<<<<< yarn-site.xml >>>>>>>>>>>>>>>>>>>>>>>>>>
+
+<property>
+<name>yarn.resourcemanager.address</name>
+<value>m1:9001</value>
+</property>
+
+<property>
+<name>yarn.resourcemanager.resource-tracker.address</name>
+<value>m1:8031</value>
+</property>
+
+<property>
+<name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+<value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce_shuffle</value>
+</property>
+
+<property>
+<name>yarn.nodemanager.pmem-check-enable</name>
+<value>false</value>
+</property>
+
+<property>
+<name>yarn.nodemanager.vmem-check-enable</name>
+<value>false</value>
+</property>
+
+<property>
+<name>yarn.log-aggregation-enable</name>
+<value>true</value>
+</property>
+
+<property>
+<name>yarn.nodemanager.log-aggregation.roll-monitoring-interval-seconds</name>
+<value>3600</value>
+</property>
+
+<<<<<<<<<<<<<<<<<<<<<<< slaves >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+m1
+m2
+
+<<<<<<<<<<<<<<<<<<<<<<<  COPIAR LOS ARCHIVOS A M2 >>>>>>>>>>>>>>>>>>>>>
+scp archivos hdc@m2:/usr/local/hadoop/etc/hadoop
+
+
+No changes on core file
+mapred file, no changes
+hdfs file, 
+	remove namenode
+	change datanode to /u02/data2
+	Agregar checkpoint
+	<property>
+	<name>dfs.namenode.checkpoint.period</name>
+	<value>600</value>
+	</property>
+
+yarn file, no changes
+slaves, no changes
+
+<<<<<<<<<<<<<<<<<<<<<<< Preparar File System para almacenamiento >>>>>>>>>>>>>>>>>>>>>>
+
+Cambiar prermisos a /u02 para hdc
+ambos servidores
+chown -R hdc:hdc /u02
+
+formating datanode 1.55.27
+ls -all /u02
+hfds namenode -format 
+
+<<<<<<<<<<<<<<<<<<<<<<< Iniciar Servicios y comandos hdfs >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+start-all.sh
+
+check cluster status
+jps 
+
+http:\\m1:50070, hdfs browse
+http:\\m1:8088, resource manager 
+
+hdfs dfsadmin -report
+
+hdfs dfs -ls ; check for files in hdfs
+hdfs dfs -put MyNewFile
+hdfs dfs -cat MyNewFile
+hdfs dfs -mv
+hdfs dfs -rm
+hdfs dfs -mkdir
+
+Mas comandos hadoop;
+https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-common/FileSystemShell.html
+
+<<<<<<<<<<<<<<<<<<<<<<< Ejemplo de MapReduce >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+jar -xvf /usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.5.jar
+
+hadoop jar /usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.5.jar wordcount INPUTFILE /OUTDIR
+
+El proceso crea el /OUT	diectory
+INPUTFILE tiene que estar ya dentro del hdfs, con ep -put se puede crear. Se puede poner un archivo simple o un directorio completo
+
+Esto va a enviar un job a correr y como esta en cluster usara el yarn lo que se puede ver en
+http:\\m1:8088

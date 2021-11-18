@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/63bf86a4-0d70-4df4-a55e-eb358ee9fdfc/resourceGroups/recursos/providers/Microsoft.Web/sites/registrarits",
+    "appService.deploySubpath": ""
+}
